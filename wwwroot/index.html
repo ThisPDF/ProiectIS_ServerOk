@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OKServer - Device Management</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔌 OKServer</h1>
+            <p class="subtitle">Device & Heartbeat Management System</p>
+        </header>
+        
+        <noscript>
+            <div style="background: #fee; padding: 1rem; margin: 1rem 0; border-radius: 6px; color: #c00;">
+                <strong>JavaScript is required!</strong> Please enable JavaScript to use this application.
+            </div>
+        </noscript>
+
+        <div class="tabs">
+            <button class="tab-button active" onclick="showTab('devices', this)">Devices</button>
+            <button class="tab-button" onclick="showTab('heartbeats', this)">All Heartbeats</button>
+        </div>
+
+        <!-- Devices Tab -->
+        <div id="devices-tab" class="tab-content active">
+            <div class="section-header">
+                <h2>Devices</h2>
+                <button class="btn btn-primary" onclick="showDeviceModal()">+ Add Device</button>
+            </div>
+
+            <div id="devices-list" class="cards-container">
+                <div class="loading">Loading devices...</div>
+            </div>
+        </div>
+
+        <!-- Heartbeats Tab -->
+        <div id="heartbeats-tab" class="tab-content">
+            <div class="section-header">
+                <h2>All Heartbeats</h2>
+            </div>
+            <div id="heartbeats-list" class="cards-container">
+                <div class="loading">Loading heartbeats...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Device Modal -->
+    <div id="device-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeDeviceModal()">&times;</span>
+            <h2 id="modal-title">Add Device</h2>
+            <form id="device-form">
+                <div class="form-group">
+                    <label for="device-name">Name *</label>
+                    <input type="text" id="device-name" required>
+                    <span class="error" id="device-name-error"></span>
+                </div>
+                <div class="form-group">
+                    <label for="device-email">Owner Email *</label>
+                    <input type="email" id="device-email" required>
+                    <span class="error" id="device-email-error"></span>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeDeviceModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Heartbeat Modal -->
+    <div id="heartbeat-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeHeartbeatModal()">&times;</span>
+            <h2>Add Heartbeat</h2>
+            <form id="heartbeat-form">
+                <div class="form-group">
+                    <label for="heartbeat-status">Status *</label>
+                    <select id="heartbeat-status" required>
+                        <option value="">Select Status</option>
+                        <option value="OK">OK</option>
+                        <option value="WARN">WARN</option>
+                        <option value="ERROR">ERROR</option>
+                    </select>
+                    <span class="error" id="heartbeat-status-error"></span>
+                </div>
+                <div class="form-group">
+                    <label for="heartbeat-message">Message</label>
+                    <textarea id="heartbeat-message" rows="3"></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeHeartbeatModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
+
