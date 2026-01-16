@@ -61,26 +61,27 @@ function displayDevices(devices) {
         return;
     }
     
-    container.innerHTML = devices.map(device => {
-        // Validate device.id
-        if (!device.id) {
+    container.innerHTML = devices.map((device, index) => {
+        // Validate device.Id (PascalCase from C# API)
+        if (!device.Id) {
             console.error('Device missing ID:', device);
             return '';
         }
-        const deviceId = device.id;
+        const deviceId = device.Id;
+        const displayId = index + 1;
         return `
         <div class="card">
             <div class="card-header">
                 <div>
-                    <div class="card-title">${escapeHtml(device.name)}</div>
-                    <div class="card-subtitle">${escapeHtml(device.ownerEmail)}</div>
+                    <div class="card-title">Device ${displayId}</div>
+                    <div class="card-subtitle">${escapeHtml(device.Name)} (${escapeHtml(device.OwnerEmail)})</div>
                 </div>
             </div>
             <div class="card-body">
                 <div class="card-info">
                     <div class="info-item">
                         <span class="info-label">Created:</span>
-                        <span class="info-value">${formatDate(device.createdAt)}</span>
+                        <span class="info-value">${formatDate(device.CreatedAt)}</span>
                     </div>
                 </div>
             </div>
@@ -145,25 +146,25 @@ function showDeviceHeartbeatsModal(deviceId, heartbeats) {
                 ${heartbeats.length === 0 
                     ? '<div class="empty-state"><p>No heartbeats found for this device.</p></div>'
                     : heartbeats.map(hb => `
-                        <div class="card heartbeat-card status-${hb.status.toLowerCase()}">
+                        <div class="card heartbeat-card status-${hb.Status.toLowerCase()}">
                             <div class="card-header">
                                 <div>
                                     <div class="card-title">
-                                        <span class="status-badge status-${hb.status.toLowerCase()}">${hb.status}</span>
+                                        <span class="status-badge status-${hb.Status.toLowerCase()}">${hb.Status}</span>
                                     </div>
-                                    <div class="card-subtitle timestamp">${formatDate(hb.timestamp)}</div>
+                                    <div class="card-subtitle timestamp">${formatDate(hb.Timestamp)}</div>
                                 </div>
                             </div>
                             <div class="card-body">
                                 <div class="card-info">
                                     <div class="info-item">
                                         <span class="info-label">Message:</span>
-                                        <span class="info-value">${escapeHtml(hb.message || 'N/A')}</span>
+                                        <span class="info-value">${escapeHtml(hb.Message || 'N/A')}</span>
                                     </div>
                                 </div>
                             </div>
                             <div class="card-actions">
-                                <button class="btn btn-danger btn-small" onclick="deleteHeartbeat('${hb.id}', '${deviceId}')">
+                                <button class="btn btn-danger btn-small" onclick="deleteHeartbeat('${hb.Id}', '${deviceId}')">
                                     Delete
                                 </button>
                             </div>
@@ -231,8 +232,8 @@ async function loadDeviceForEdit(deviceId) {
         if (!response.ok) throw new Error('Failed to load device');
         
         const device = await response.json();
-        document.getElementById('device-name').value = device.name;
-        document.getElementById('device-email').value = device.ownerEmail;
+        document.getElementById('device-name').value = device.Name;
+        document.getElementById('device-email').value = device.OwnerEmail;
     } catch (error) {
         console.error('Error loading device:', error);
         alert('Error loading device. Please try again.');
@@ -339,6 +340,13 @@ async function deleteDevice(deviceId) {
 
 // Heartbeat functions
 function showHeartbeatModal(deviceId) {
+    // Close any open modals first
+    document.querySelectorAll('.modal').forEach(modal => {
+        if (modal.style.display !== 'none') {
+            modal.style.display = 'none';
+        }
+    });
+    
     // Check if deviceId is valid (not undefined, null, or the string "undefined")
     if (!deviceId || deviceId === 'undefined' || deviceId === 'null' || deviceId === undefined) {
         console.error('Invalid deviceId passed to showHeartbeatModal:', deviceId, typeof deviceId);
@@ -496,11 +504,11 @@ async function loadAllHeartbeats() {
         const allHeartbeats = [];
         
         for (const device of devices) {
-            const heartbeatsResponse = await fetch(`${API_BASE_URL}/devices/${device.id}/heartbeats`);
+            const heartbeatsResponse = await fetch(`${API_BASE_URL}/devices/${device.Id}/heartbeats`);
             if (heartbeatsResponse.ok) {
                 const heartbeats = await heartbeatsResponse.json();
                 heartbeats.forEach(hb => {
-                    allHeartbeats.push({ ...hb, deviceName: device.name, deviceEmail: device.ownerEmail });
+                    allHeartbeats.push({ ...hb, deviceName: device.Name, deviceEmail: device.OwnerEmail });
                 });
             }
         }
@@ -525,16 +533,16 @@ function displayAllHeartbeats(heartbeats) {
     }
     
     container.innerHTML = heartbeats.map(hb => `
-        <div class="card heartbeat-card status-${hb.status.toLowerCase()}">
+                        <div class="card heartbeat-card status-${hb.Status.toLowerCase()}">
             <div class="card-header">
                 <div>
                     <div class="card-title">
-                        <span class="status-badge status-${hb.status.toLowerCase()}">${hb.status}</span>
+                        <span class="status-badge status-${hb.Status.toLowerCase()}">${hb.Status}</span>
                         <span style="margin-left: 0.5rem; font-weight: normal; color: var(--text-secondary);">
                             - ${escapeHtml(hb.deviceName)}
                         </span>
                     </div>
-                    <div class="card-subtitle timestamp">${formatDate(hb.timestamp)}</div>
+                    <div class="card-subtitle timestamp">${formatDate(hb.Timestamp)}</div>
                 </div>
             </div>
             <div class="card-body">
@@ -545,12 +553,12 @@ function displayAllHeartbeats(heartbeats) {
                     </div>
                     <div class="info-item">
                         <span class="info-label">Message:</span>
-                        <span class="info-value">${escapeHtml(hb.message || 'N/A')}</span>
+                        <span class="info-value">${escapeHtml(hb.Message || 'N/A')}</span>
                     </div>
                 </div>
             </div>
             <div class="card-actions">
-                <button class="btn btn-danger btn-small" onclick="deleteHeartbeat('${hb.id}')">
+                <button class="btn btn-danger btn-small" onclick="deleteHeartbeat('${hb.Id}')">
                     Delete
                 </button>
             </div>

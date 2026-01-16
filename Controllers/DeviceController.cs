@@ -23,9 +23,12 @@ public class DeviceController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<DeviceDto>> GetById(Guid id)
+    public async Task<ActionResult<DeviceDto>> GetById(string id)
     {
-        var device = await _deviceService.GetByIdAsync(id);
+        if (!Guid.TryParse(id, out var guid))
+            return BadRequest("Invalid ID format");
+        
+        var device = await _deviceService.GetByIdAsync(guid);
         if (device == null)
             return NotFound();
 
@@ -60,8 +63,11 @@ public class DeviceController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    public async Task<ActionResult<DeviceDto>> Update(Guid id, [FromBody] UpdateDeviceDto updateDto)
+    public async Task<ActionResult<DeviceDto>> Update(string id, [FromBody] UpdateDeviceDto updateDto)
     {
+        if (!Guid.TryParse(id, out var guid))
+            return BadRequest("Invalid ID format");
+        
         if (!ModelState.IsValid)
         {
             var errors = ModelState
@@ -71,7 +77,7 @@ public class DeviceController : ControllerBase
             return BadRequest(new { message = "Validation failed", errors = errors });
         }
 
-        var device = await _deviceService.UpdateAsync(id, updateDto);
+        var device = await _deviceService.UpdateAsync(guid, updateDto);
         if (device == null)
             return NotFound();
 
@@ -79,9 +85,12 @@ public class DeviceController : ControllerBase
     }
 
     [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete(Guid id)
+    public async Task<IActionResult> Delete(string id)
     {
-        var deleted = await _deviceService.DeleteAsync(id);
+        if (!Guid.TryParse(id, out var guid))
+            return BadRequest("Invalid ID format");
+        
+        var deleted = await _deviceService.DeleteAsync(guid);
         if (!deleted)
             return NotFound();
 

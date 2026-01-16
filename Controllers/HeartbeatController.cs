@@ -16,15 +16,21 @@ public class HeartbeatController : ControllerBase
     }
 
     [HttpGet("devices/{deviceId}/heartbeats")]
-    public async Task<ActionResult<IEnumerable<HeartbeatDto>>> GetByDeviceId(Guid deviceId)
+    public async Task<ActionResult<IEnumerable<HeartbeatDto>>> GetByDeviceId(string deviceId)
     {
-        var heartbeats = await _heartbeatService.GetByDeviceIdAsync(deviceId);
+        if (!Guid.TryParse(deviceId, out var guid))
+            return BadRequest("Invalid device ID format");
+        
+        var heartbeats = await _heartbeatService.GetByDeviceIdAsync(guid);
         return Ok(heartbeats);
     }
 
     [HttpPost("devices/{deviceId}/heartbeats")]
-    public async Task<ActionResult<HeartbeatDto>> Create(Guid deviceId, [FromBody] CreateHeartbeatDto createDto)
+    public async Task<ActionResult<HeartbeatDto>> Create(string deviceId, [FromBody] CreateHeartbeatDto createDto)
     {
+        if (!Guid.TryParse(deviceId, out var guid))
+            return BadRequest("Invalid device ID format");
+        
         if (!ModelState.IsValid)
         {
             var errors = ModelState
@@ -36,7 +42,7 @@ public class HeartbeatController : ControllerBase
 
         try
         {
-            var heartbeat = await _heartbeatService.CreateAsync(deviceId, createDto);
+            var heartbeat = await _heartbeatService.CreateAsync(guid, createDto);
             return CreatedAtAction(nameof(GetById), new { id = heartbeat.Id }, heartbeat);
         }
         catch (ArgumentException ex)
@@ -46,9 +52,12 @@ public class HeartbeatController : ControllerBase
     }
 
     [HttpGet("heartbeats/{id}")]
-    public async Task<ActionResult<HeartbeatDto>> GetById(Guid id)
+    public async Task<ActionResult<HeartbeatDto>> GetById(string id)
     {
-        var heartbeat = await _heartbeatService.GetByIdAsync(id);
+        if (!Guid.TryParse(id, out var guid))
+            return BadRequest("Invalid ID format");
+        
+        var heartbeat = await _heartbeatService.GetByIdAsync(guid);
         if (heartbeat == null)
             return NotFound();
 
@@ -56,9 +65,12 @@ public class HeartbeatController : ControllerBase
     }
 
     [HttpDelete("heartbeats/{id}")]
-    public async Task<IActionResult> Delete(Guid id)
+    public async Task<IActionResult> Delete(string id)
     {
-        var deleted = await _heartbeatService.DeleteAsync(id);
+        if (!Guid.TryParse(id, out var guid))
+            return BadRequest("Invalid ID format");
+        
+        var deleted = await _heartbeatService.DeleteAsync(guid);
         if (!deleted)
             return NotFound();
 

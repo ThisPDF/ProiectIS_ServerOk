@@ -9,12 +9,15 @@ public class MappingProfile : Profile
     public MappingProfile()
     {
         // Device mappings
-        CreateMap<Device, DeviceDto>();
+        CreateMap<Device, DeviceDto>()
+            .ForMember(d => d.Id, opt => opt.MapFrom(s => s.Id.ToString()));
         CreateMap<CreateDeviceDto, Device>();
         CreateMap<UpdateDeviceDto, Device>();
 
         // Heartbeat mappings
-        CreateMap<Heartbeat, HeartbeatDto>();
+        CreateMap<Heartbeat, HeartbeatDto>()
+            .ForMember(d => d.Id, opt => opt.MapFrom(s => s.Id.ToString()))
+            .ForMember(d => d.DeviceId, opt => opt.MapFrom(s => s.DeviceId.ToString()));
         CreateMap<CreateHeartbeatDto, Heartbeat>();
     }
 }

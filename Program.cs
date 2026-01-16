@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using OKServer.Data;
+using OKServer.Mappings;
 using OKServer.Repositories;
 using OKServer.Services;
 using System.Reflection;
@@ -41,7 +42,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     }));
 
 // AutoMapper
-builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
+builder.Services.AddAutoMapper(cfg => cfg.AddProfile<MappingProfile>());
 
 // Repositories
 builder.Services.AddScoped<IDeviceRepository, DeviceRepository>();
@@ -52,6 +53,13 @@ builder.Services.AddScoped<IDeviceService, DeviceService>();
 builder.Services.AddScoped<IHeartbeatService, HeartbeatService>();
 
 var app = builder.Build();
+
+// Apply migrations
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    db.Database.Migrate();
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
