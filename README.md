@@ -1,148 +1,149 @@
-# OKServer - .NET 8 Web API
+# OKServer - Aplicatie Web API cu .NET 8
 
-A complete .NET 8 Web API project with a modern web UI for managing devices and their heartbeats.
+Aceasta este o aplicatie completa Web API construita cu .NET 8, care include o interfata web moderna pentru gestionarea dispozitivelor si a semnalelor lor de viata (heartbeats).
 
-## Features
+## Ce face aplicatia
 
-- 🎨 **Modern Web UI** - Beautiful, responsive interface for managing devices and heartbeats
-- 🔌 **RESTful API** - Complete REST API with Swagger documentation
-- 🗄️ **PostgreSQL Database** - Robust data storage with EF Core
-- ✅ **Data Validation** - Built-in validation for all inputs
-- 🗺️ **AutoMapper** - Automatic DTO mapping
+Aplicatia permite:
+- Gestionarea dispozitivelor (adaugare, modificare, stergere)
+- Inregistrarea si vizualizarea semnalelor de viata de la dispozitive
+- O interfata web usoara de utilizat
+- Un API REST pentru integrare cu alte sisteme
 
-## Architecture
+## Structura aplicatiei
 
-- **Controller → Service → Repository** pattern
-- **PostgreSQL** database with EF Core
-- **AutoMapper** for DTO mapping
-- **Data Annotations** for data validation
+Aplicatia foloseste:
+- Baza de date PostgreSQL pentru stocarea datelor
+- Entity Framework Core pentru lucrul cu baza de date
+- AutoMapper pentru conversia datelor
+- ASP.NET Core pentru API si interfata web
 
-## Entities
+## Entitatile din baza de date
 
-### Device
-- `Id` (Guid)
-- `Name` (string, required)
-- `OwnerEmail` (string, required, valid email)
-- `CreatedAt` (DateTime)
+### Dispozitiv (Device)
+- Id: identificator unic
+- Name: numele dispozitivului
+- OwnerEmail: email-ul proprietarului
+- CreatedAt: data crearii
 
-### Heartbeat
-- `Id` (Guid)
-- `DeviceId` (Guid, foreign key)
-- `Status` (string: OK/WARN/ERROR)
-- `Message` (string)
-- `Timestamp` (DateTime)
+### Semnal de viata (Heartbeat)
+- Id: identificator unic
+- DeviceId: id-ul dispozitivului care trimite semnalul
+- Status: starea (OK, WARN, ERROR)
+- Message: mesaj descriptiv
+- Timestamp: data si ora semnalului
 
 ## API Endpoints
 
 ### DeviceController
-- `GET /api/devices` - Get all devices
-- `GET /api/devices/{id}` - Get device by ID
-- `POST /api/devices` - Create a new device
-- `PUT /api/devices/{id}` - Update a device
-- `DELETE /api/devices/{id}` - Delete a device
+- GET /api/devices - obtine toate dispozitivele
+- GET /api/devices/{id} - obtine un dispozitiv dupa ID
+- POST /api/devices - creeaza un dispozitiv nou
+- PUT /api/devices/{id} - modifica un dispozitiv
+- DELETE /api/devices/{id} - sterge un dispozitiv
 
 ### HeartbeatController
-- `GET /api/devices/{id}/heartbeats` - Get all heartbeats for a device
-- `POST /api/devices/{id}/heartbeats` - Create a new heartbeat for a device
-- `GET /api/heartbeats/{id}` - Get heartbeat by ID
-- `DELETE /api/heartbeats/{id}` - Delete a heartbeat
+- GET /api/devices/{id}/heartbeats - obtine toate semnalele pentru un dispozitiv
+- POST /api/devices/{id}/heartbeats - creeaza un semnal nou pentru un dispozitiv
+- GET /api/heartbeats/{id} - obtine un semnal dupa ID
+- DELETE /api/heartbeats/{id} - sterge un semnal
 
-## Setup
+## Instalare si rulare
 
-1. **Install PostgreSQL** and create a database named `OKServerDb`
+### Varianta 1: Cu Docker (recomandat)
 
-2. **Update connection string** in `appsettings.json`:
+1. Asigura-te ca ai Docker si Docker Compose instalate pe computer.
+
+2. Deschide terminalul in folderul proiectului.
+
+3. Ruleaza comanda:
+   ```
+   docker-compose up --build
+   ```
+
+4. Asteapta ca containerele sa se porneasca. Aplicatia va fi disponibila la adresa:
+   - Interfata web: http://localhost:8080
+   - Baza de date PostgreSQL: localhost:5433 (daca ai nevoie sa te conectezi direct)
+
+### Varianta 2: Fara Docker (dezvoltare locala)
+
+1. Instaleaza PostgreSQL pe computerul tau si creeaza o baza de date numita `OKServerDb`.
+
+2. Modifica fisierul `appsettings.json` pentru a seta conexiunea la baza de date locala:
    ```json
    "ConnectionStrings": {
      "DefaultConnection": "Host=localhost;Port=5432;Database=OKServerDb;Username=your_username;Password=your_password"
    }
    ```
 
-3. **Run migrations**:
-   ```bash
-   dotnet ef migrations add InitialCreate
+3. Instaleaza .NET 8 SDK daca nu il ai.
+
+4. Deschide terminalul in folderul proiectului.
+
+5. Ruleaza migratiile pentru baza de date:
+   ```
    dotnet ef database update
    ```
 
-4. **Run the application**:
-   ```bash
+6. Porneste aplicatia:
+   ```
    dotnet run
    ```
 
-5. **Access the Web UI**:
-   - Open your browser and navigate to `http://localhost:5000` or `https://localhost:5001`
-   - The modern web interface allows you to:
-     - View and manage devices
-     - Add, edit, and delete devices
-     - View heartbeats for each device
-     - Add new heartbeats
-     - View all heartbeats across all devices
+7. Deschide browser-ul si mergi la:
+   - http://localhost:5000 (sau https://localhost:5001 pentru HTTPS)
 
-6. **Access Swagger UI** (optional):
-   - Navigate to `https://localhost:5001/swagger` for API documentation
+## Cum se foloseste interfata web
 
-## Project Structure
+Interfata web are doua sectiuni principale:
+
+### Sectiunea Dispozitive
+- Vezi toate dispozitivele adaugate
+- Adauga dispozitive noi (completeaza numele si email-ul)
+- Modifica dispozitive existente
+- Sterge dispozitive
+- Vezi semnalele de viata pentru fiecare dispozitiv
+
+### Sectiunea Toate Semnalele
+- Vezi toate semnalele de viata din toate dispozitivele
+- Semnalele sunt colorate dupa stare:
+  - Verde: OK
+  - Galben: WARN
+  - Rosu: ERROR
+- Sterge semnale individuale
+
+### Modal pentru Semnalele unui Dispozitiv
+- Cand dai click pe "Vezi Heartbeats" la un dispozitiv
+- Vezi toate semnalele acelui dispozitiv
+- Adauga semnale noi direct din modal
+
+## Structura fisierelor proiectului
 
 ```
 OKServer/
-├── Controllers/
-│   ├── DeviceController.cs
-│   └── HeartbeatController.cs
-├── Data/
-│   └── ApplicationDbContext.cs
-├── DTOs/
-│   ├── DeviceDto.cs
-│   ├── CreateDeviceDto.cs
-│   ├── UpdateDeviceDto.cs
-│   ├── HeartbeatDto.cs
-│   └── CreateHeartbeatDto.cs
-├── Mappings/
-│   └── MappingProfile.cs
-├── Models/
-│   ├── Device.cs
-│   └── Heartbeat.cs
-├── Repositories/
-│   ├── IDeviceRepository.cs
-│   ├── DeviceRepository.cs
-│   ├── IHeartbeatRepository.cs
-│   └── HeartbeatRepository.cs
-├── Services/
-│   ├── IDeviceService.cs
-│   ├── DeviceService.cs
-│   ├── IHeartbeatService.cs
-│   └── HeartbeatService.cs
-├── wwwroot/
+├── Controllers/          # Controlerele API
+├── Data/                 # Contextul bazei de date
+├── DTOs/                 # Obiecte de transfer date
+├── Mappings/             # Configurari AutoMapper
+├── Models/               # Modelele de date
+├── Repositories/         # Clase pentru accesul la date
+├── Services/             # Logica de business
+├── wwwroot/              # Fisiere statice pentru interfata web
 │   ├── index.html
 │   ├── css/
-│   │   └── styles.css
 │   └── js/
-│       └── app.js
-├── appsettings.json
-├── Program.cs
-└── OKServer.csproj
+├── Dockerfile            # Configuratie pentru containerul aplicatiei
+├── docker-compose.yml    # Configuratie pentru rularea cu Docker
+├── appsettings.json      # Setari aplicatie
+├── Program.cs            # Punctul de intrare al aplicatiei
+└── OKServer.csproj       # Fisierul proiect .NET
 ```
 
-## Web UI Features
+## Tehnologii folosite
 
-The web interface provides:
-
-- **Devices Tab**:
-  - View all devices in a card-based layout
-  - Add new devices with validation
-  - Edit existing devices
-  - Delete devices (with confirmation)
-  - View heartbeats for each device
-
-- **All Heartbeats Tab**:
-  - View all heartbeats from all devices
-  - Color-coded status indicators (OK/WARN/ERROR)
-  - Delete individual heartbeats
-  - Filtered by device
-
-- **Device Heartbeats Modal**:
-  - View all heartbeats for a specific device
-  - Add new heartbeats directly from the modal
-  - Real-time updates
-
-The UI is fully responsive and works on desktop, tablet, and mobile devices.
-
+- .NET 8 (ASP.NET Core)
+- PostgreSQL (baza de date)
+- Entity Framework Core (ORM)
+- AutoMapper (mapping obiecte)
+- HTML/CSS/JavaScript (interfata web)
+- Docker (containerizare)
